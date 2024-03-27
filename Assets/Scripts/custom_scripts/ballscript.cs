@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ballrotate : MonoBehaviour
 {
+    [SerializeField]
+    GameObject ballPrefab;
+    float throwForce = 20f;
     Rigidbody rb; 
     RaycastHit hit;
     float yvel;
@@ -14,41 +17,34 @@ public class ballrotate : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rb=gameObject.GetComponent<Rigidbody>();
+       
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if(!onground())
-        {
-            yvel =9.8f;
-        }
-        else{
-            yvel  = 0f;
-        }
-        Debug.DrawRay(transform.position,Vector3.down*0.4f,Color.green);
-        rb.AddForce(Vector3.down*yvel,ForceMode.Acceleration);
-        transform.Rotate(new Vector3(-10,0,0));
-        if(Input.GetKeyDown(KeyCode.UpArrow))
-        {
-            rb.AddForce(Vector3.up*0.5f,ForceMode.Impulse);
-        }
-    }
-    bool onground()
-    {
-        if(Physics.Raycast(transform.position,Vector3.down,out hit,0.4f))
-        {
-            if(hit.collider.gameObject.tag=="floor")
+    void Update(){
+            if (Input.GetMouseButtonDown(0))
             {
-                return true;
+            // Get the mouse position in screen coordinates
+            Vector3 mousePosition = Input.mousePosition;
+
+            // Convert screen coordinates to world coordinates
+            Vector3 worldMousePosition = gameObject.GetComponent<Camera>().ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, 100f));
+
+            // Calculate the direction from the ball's initial position to the mouse position
+            Vector3 direction = (worldMousePosition - transform.position).normalized;
+
+            // Instantiate the ball GameObject at the camera position
+            GameObject ball = Instantiate(ballPrefab, transform.position, Quaternion.identity);
+
+            // Apply force to the ball in the direction calculated
+            Rigidbody rb = ball.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddForce(direction * throwForce, ForceMode.Impulse);
             }
-            else{
-                return false;
-            }
-        }
-        else{
-            return false;
         }
     }
 }
+
+   
+
